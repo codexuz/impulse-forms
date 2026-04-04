@@ -1,26 +1,24 @@
 import { useState, useCallback } from 'react';
-import type { VueformElement } from '../types/forms';
+import type { FormSchema } from '../types/forms';
 import FormField from './FormField';
 import './FormRenderer.css';
 
 interface FormRendererProps {
-  schema: Record<string, VueformElement>;
+  schema: FormSchema;
   loading?: boolean;
   onSubmit: (data: Record<string, unknown>) => void;
 }
 
 export default function FormRenderer({ schema, loading, onSubmit }: FormRendererProps) {
+  const fields = schema.fields;
+
   const [values, setValues] = useState<Record<string, unknown>>(() => {
     const defaults: Record<string, unknown> = {};
-    for (const [key, el] of Object.entries(schema)) {
-      if (el.default !== undefined) {
-        defaults[key] = el.default;
-      } else if (el.type === 'checkbox' || el.type === 'toggle') {
-        defaults[key] = false;
-      } else if (el.type === 'checkboxgroup' || el.type === 'multiselect') {
-        defaults[key] = [];
+    for (const field of fields) {
+      if (field.type === 'checkbox') {
+        defaults[field.id] = false;
       } else {
-        defaults[key] = '';
+        defaults[field.id] = '';
       }
     }
     return defaults;
@@ -28,12 +26,12 @@ export default function FormRenderer({ schema, loading, onSubmit }: FormRenderer
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleChange = useCallback((name: string, value: unknown) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
+  const handleChange = useCallback((id: string, value: unknown) => {
+    setValues((prev) => ({ ...prev, [id]: value }));
     setErrors((prev) => {
-      if (prev[name]) {
+      if (prev[id]) {
         const next = { ...prev };
-        delete next[name];
+        delete next[id];
         return next;
       }
       return prev;
@@ -43,63 +41,17 @@ export default function FormRenderer({ schema, loading, onSubmit }: FormRenderer
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
 
-    for (const [key, el] of Object.entries(schema)) {
-      const rules = el.rules;
-      if (!rules) continue;
+    for (const field of fields) {
+      if (!field.required) continue;
 
-      const ruleList = typeof rules === 'string' ? rules.split('|') : rules;
-      const val = values[key];
+      const val = values[field.id];
 
-      for (const rule of ruleList) {
-        const trimmed = rule.trim();
+      if (val === '' || val === undefined || val === null || (Array.isArray(val) && val.length === 0)) {
+        newErrors[field.id] = `${field.label} is required`;
+      }
 
-        if (trimmed === 'required') {
-          if (val === '' || val === undefined || val === null || (Array.isArray(val) && val.length === 0)) {
-            newErrors[key] = `${el.label || key} is required`;
-            break;
-          }
-        }
-
-        if (trimmed === 'email') {
-          if (val && typeof val === 'string' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-            newErrors[key] = 'Please enter a valid email address';
-            break;
-          }
-        }
-
-        if (trimmed.startsWith('min:')) {
-          const min = parseInt(trimmed.split(':')[1], 10);
-          if (typeof val === 'string' && val.length < min) {
-            newErrors[key] = `Must be at least ${min} characters`;
-            break;
-          }
-        }
-
-        if (trimmed.startsWith('max:')) {
-          const max = parseInt(trimmed.split(':')[1], 10);
-          if (typeof val === 'string' && val.length > max) {
-            newErrors[key] = `Must be no more than ${max} characters`;
-            break;
-          }
-        }
-
-        if (trimmed === 'numeric') {
-          if (val && isNaN(Number(val))) {
-            newErrors[key] = 'Must be a number';
-            break;
-          }
-        }
-
-        if (trimmed === 'url') {
-          if (val && typeof val === 'string') {
-            try {
-              new URL(val);
-            } catch {
-              newErrors[key] = 'Please enter a valid URL';
-              break;
-            }
-          }
-        }
+      if (field.type === 'email' && val && typeof val === 'string' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+        newErrors[field.id] = 'Please enter a valid email address';
       }
     }
 
@@ -110,31 +62,25 @@ export default function FormRenderer({ schema, loading, onSubmit }: FormRenderer
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) {
-      // Scroll to first error
-      const firstErrorKey = Object.keys(errors)[0];
-      if (firstErrorKey) {
-        document.getElementById(`field-${firstErrorKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const firstErrorId = Object.keys(errors)[0];
+      if (firstErrorId) {
+        document.getElementById(`field-${firstErrorId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       return;
     }
     onSubmit(values);
   }
 
-  const entries = Object.entries(schema).filter(
-    ([, el]) => el.type !== 'hidden' || el.type === 'hidden'
-  );
-
   return (
     <form className="form-renderer" onSubmit={handleSubmit} noValidate>
       <div className="form-fields">
-        {entries.map(([name, element]) => (
+        {fields.map((field) => (
           <FormField
-            key={name}
-            name={name}
-            element={element}
-            value={values[name]}
+            key={field.id}
+            field={field}
+            value={values[field.id]}
             onChange={handleChange}
-            error={errors[name]}
+            error={errors[field.id]}
           />
         ))}
       </div>

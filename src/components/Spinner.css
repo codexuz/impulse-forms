@@ -19,8 +19,8 @@
   height: 100%;
   border-radius: 50%;
   border: 3px solid transparent;
-  border-top-color: var(--accent);
-  border-right-color: var(--accent-secondary);
+  border-top-color: #2563eb;
+  border-right-color: #06b6d4;
   animation: spin 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
