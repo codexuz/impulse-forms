@@ -1,0 +1,355 @@
+/* ─── Field Container ─── */
+.form-field {
+  margin-bottom: 1.5rem;
+  animation: field-appear 0.3s ease-out both;
+}
+
+.form-field:nth-child(1) { animation-delay: 0.05s; }
+.form-field:nth-child(2) { animation-delay: 0.1s; }
+.form-field:nth-child(3) { animation-delay: 0.15s; }
+.form-field:nth-child(4) { animation-delay: 0.2s; }
+.form-field:nth-child(5) { animation-delay: 0.25s; }
+.form-field:nth-child(6) { animation-delay: 0.3s; }
+.form-field:nth-child(7) { animation-delay: 0.35s; }
+.form-field:nth-child(8) { animation-delay: 0.4s; }
+
+@keyframes field-appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Label ─── */
+.form-field-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
+}
+
+.form-field-required {
+  color: #f87171;
+  margin-left: 3px;
+  font-weight: 700;
+}
+
+.form-field-description {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+/* ─── Input base ─── */
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--input-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.form-input:hover:not(:focus) {
+  border-color: var(--border-hover);
+}
+
+/* ─── Textarea ─── */
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+/* ─── Select ─── */
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+/* ─── Radio Group ─── */
+.form-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.form-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  cursor: pointer;
+  padding: 0.625rem 0.875rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--input-bg);
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.form-radio-label:hover {
+  border-color: var(--accent);
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.form-radio {
+  display: none;
+}
+
+.form-radio-custom {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.form-radio:checked + .form-radio-custom {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.form-radio:checked + .form-radio-custom::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+.form-radio:checked ~ span:last-child {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ─── Checkbox Group ─── */
+.form-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.form-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  cursor: pointer;
+  padding: 0.625rem 0.875rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--input-bg);
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.form-checkbox-single {
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+.form-checkbox-label:hover {
+  border-color: var(--accent);
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.form-checkbox {
+  display: none;
+}
+
+.form-checkbox-custom {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.form-checkbox:checked + .form-checkbox-custom {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.form-checkbox:checked + .form-checkbox-custom::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.form-checkbox:checked ~ span:last-child {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ─── Toggle ─── */
+.form-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.form-toggle-input {
+  display: none;
+}
+
+.form-toggle-track {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--border);
+  position: relative;
+  transition: background 0.25s ease;
+  flex-shrink: 0;
+}
+
+.form-toggle-input:checked + .form-toggle-track {
+  background: var(--accent);
+}
+
+.form-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.25s ease;
+}
+
+.form-toggle-input:checked + .form-toggle-track .form-toggle-thumb {
+  transform: translateX(20px);
+}
+
+.form-toggle-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* ─── File ─── */
+.form-file-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.form-file-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.form-file-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 10px;
+  border: 1.5px dashed var(--border);
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form-file-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.form-file-name {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ─── Static ─── */
+.form-field-static {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding: 0.75rem 1rem;
+  background: rgba(99, 102, 241, 0.04);
+  border-radius: 10px;
+  border-left: 3px solid var(--accent);
+}
+
+/* ─── Group ─── */
+.form-field-group {
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.form-field-group-legend {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 0 0.5rem;
+}
+
+/* ─── Error State ─── */
+.form-field-error .form-input {
+  border-color: #f87171;
+}
+
+.form-field-error .form-input:focus {
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+}
+
+.form-field-error-msg {
+  margin-top: 0.375rem;
+  font-size: 0.8rem;
+  color: #f87171;
+  font-weight: 500;
+}
