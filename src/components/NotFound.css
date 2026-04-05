@@ -8,6 +8,12 @@
   margin: 0 auto;
 }
 
+@media (max-width: 640px) {
+  .not-found {
+    padding: 2rem 1rem;
+  }
+}
+
 .not-found-icon {
   color: var(--text-muted);
   opacity: 0.5;
@@ -15,7 +21,7 @@
 }
 
 .not-found-title {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
@@ -25,4 +31,13 @@
   font-size: 0.95rem;
   color: var(--text-muted);
   line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .not-found-title {
+    font-size: 1.2rem;
+  }
+  .not-found-message {
+    font-size: 0.9rem;
+  }
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type { FormSchema } from '../types/forms';
 import FormField from './FormField';
 import './FormRenderer.css';
@@ -16,7 +16,7 @@ export default function FormRenderer({ schema, loading, onSubmit }: FormRenderer
     const defaults: Record<string, unknown> = {};
     for (const field of fields) {
       if (field.type === 'checkbox') {
-        defaults[field.id] = false;
+        defaults[field.id] = [];
       } else {
         defaults[field.id] = '';
       }
@@ -59,6 +59,29 @@ export default function FormRenderer({ schema, loading, onSubmit }: FormRenderer
     return Object.keys(newErrors).length === 0;
   }
 
+  function buildLabeledAnswers(): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
+    for (const field of fields) {
+      const raw = values[field.id];
+      const label = field.label;
+
+      if (field.options && field.options.length > 0) {
+        if (Array.isArray(raw)) {
+          // checkbox: map each selected value to its option label
+          result[label] = (raw as string[]).map(
+            (v) => field.options!.find((o) => o.value === v)?.label ?? v
+          );
+        } else {
+          // select / radio: single value → option label
+          result[label] = field.options.find((o) => o.value === raw)?.label ?? raw;
+        }
+      } else {
+        result[label] = raw;
+      }
+    }
+    return result;
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) {
@@ -68,11 +91,28 @@ export default function FormRenderer({ schema, loading, onSubmit }: FormRenderer
       }
       return;
     }
-    onSubmit(values);
+    onSubmit(buildLabeledAnswers());
   }
+
+  const filledCount = useMemo(() => {
+    return fields.filter((f) => {
+      const val = values[f.id];
+      if (Array.isArray(val)) return val.length > 0;
+      return val !== '' && val !== undefined && val !== null;
+    }).length;
+  }, [values, fields]);
+
+  const progressPct = fields.length > 0 ? Math.round((filledCount / fields.length) * 100) : 0;
 
   return (
     <form className="form-renderer" onSubmit={handleSubmit} noValidate>
+      <div className="form-progress">
+        <div className="form-progress-bar">
+          <div className="form-progress-fill" style={{ width: `${progressPct}%` }} />
+        </div>
+        <span className="form-progress-text">{filledCount}/{fields.length}</span>
+      </div>
+
       <div className="form-fields">
         {fields.map((field) => (
           <FormField

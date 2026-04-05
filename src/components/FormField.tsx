@@ -118,17 +118,31 @@ function renderInput(
     }
 
     case 'checkbox': {
+      const options = field.options ?? [];
+      const selected = Array.isArray(value) ? (value as string[]) : [];
       return (
-        <label className="form-checkbox-label form-checkbox-single">
-          <input
-            id={id}
-            type="checkbox"
-            className="form-checkbox"
-            checked={Boolean(value)}
-            onChange={(e) => onChange(e.target.checked)}
-          />
-          <span className="form-checkbox-custom" />
-        </label>
+        <div className="form-checkbox-group">
+          {options.map((opt) => {
+            const isChecked = selected.includes(opt.value);
+            return (
+              <label key={opt.value} className="form-checkbox-label">
+                <input
+                  type="checkbox"
+                  className="form-checkbox"
+                  checked={isChecked}
+                  onChange={() => {
+                    const next = isChecked
+                      ? selected.filter((v) => v !== opt.value)
+                      : [...selected, opt.value];
+                    onChange(next);
+                  }}
+                />
+                <span className="form-checkbox-custom" />
+                <span>{opt.label}</span>
+              </label>
+            );
+          })}
+        </div>
       );
     }
 

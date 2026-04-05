@@ -3,21 +3,63 @@
 }
 
 .form-fields {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ─── Progress Bar ─── */
+.form-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.form-progress-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.form-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 0;
+}
+
+.form-progress-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  min-width: fit-content;
 }
 
 /* ─── Submit Button ─── */
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  padding-top: 0.5rem;
+  padding-top: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .form-actions {
+    justify-content: stretch;
+  }
 }
 
 .form-submit-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.9rem 2.5rem;
+  min-height: var(--tap-min);
   border: none;
   border-radius: 14px;
   background: linear-gradient(135deg, #2563eb, #06b6d4);
@@ -31,6 +73,15 @@
   overflow: hidden;
   letter-spacing: 0.01em;
   box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+}
+
+@media (max-width: 640px) {
+  .form-submit-btn {
+    width: 100%;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1.05rem;
+  }
 }
 
 .form-submit-btn::before {
@@ -52,8 +103,9 @@
 }
 
 .form-submit-btn:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
   box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+  transition-duration: 0.1s;
 }
 
 .form-submit-btn:disabled {
