@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import type { Form } from '../types/forms';
 import { getForm, submitFormResponse } from '../api/formsApi';
 import FormRenderer from '../components/FormRenderer';
+import SmsGate from '../components/SmsGate';
 import SuccessScreen from '../components/SuccessScreen';
 import Spinner from '../components/Spinner';
 import NotFound from '../components/NotFound';
@@ -18,6 +19,7 @@ export default function FormPage({ id }: FormPageProps) {
   const [form, setForm] = useState<Form | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [verification, setVerification] = useState<{ phone: string; code: string } | null>(null);
 
   useEffect(() => {
     if (!id) {
@@ -51,7 +53,7 @@ export default function FormPage({ id }: FormPageProps) {
       setSubmitting(true);
       setErrorMsg('');
       try {
-        await submitFormResponse(id, answers);
+        await submitFormResponse(id, answers, verification ?? undefined);
         setState('submitted');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (e: unknown) {
@@ -61,12 +63,17 @@ export default function FormPage({ id }: FormPageProps) {
         setSubmitting(false);
       }
     },
-    [id]
+    [id, verification]
   );
+
+  const handleVerified = useCallback((phone: string, code: string) => {
+    setVerification({ phone, code });
+  }, []);
 
   const handleReset = useCallback(() => {
     setState('loading');
     setErrorMsg('');
+    setVerification(null);
     // Reload the form
     if (id) {
       getForm(id).then((data) => {
@@ -136,11 +143,15 @@ export default function FormPage({ id }: FormPageProps) {
               </div>
             )}
 
-            <FormRenderer
-              schema={form.schema}
-              loading={submitting}
-              onSubmit={handleSubmit}
-            />
+            {form.smsVerification && !verification ? (
+              <SmsGate formId={id!} onVerified={handleVerified} />
+            ) : (
+              <FormRenderer
+                schema={form.schema}
+                loading={submitting}
+                onSubmit={handleSubmit}
+              />
+            )}
           </div>
         )}
 

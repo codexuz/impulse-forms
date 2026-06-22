@@ -33,6 +33,8 @@ export interface Form {
   id: string;
   title: string;
   schema: FormSchema;
+  /** When true, submitting a response requires a verified SMS code. */
+  smsVerification: boolean;
   createdAt: string;
   updatedAt: string;
 }

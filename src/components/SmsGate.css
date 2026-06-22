@@ -1,0 +1,44 @@
+.sms-gate {
+  display: flex;
+  flex-direction: column;
+}
+
+.sms-gate-intro {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.sms-gate-field {
+  margin-bottom: 1.25rem;
+  animation: field-appear 0.4s ease-out both;
+}
+
+.sms-gate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.sms-gate-link {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.sms-gate-link:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.sms-gate-link:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

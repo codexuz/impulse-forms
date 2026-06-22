@@ -10,14 +10,36 @@ export async function getForm(id: string): Promise<Form> {
   return res.json();
 }
 
+export async function requestResponseOtp(
+  formId: string,
+  phone: string
+): Promise<{ message: string }> {
+  const res = await fetch(`${API_BASE}/forms/responses/request-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ form_id: formId, phone }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data?.message || `Failed to send code (${res.status})`);
+  }
+  return res.json();
+}
+
+export interface ResponseVerification {
+  phone: string;
+  code: string;
+}
+
 export async function submitFormResponse(
   formId: string,
-  answers: Record<string, unknown>
+  answers: Record<string, unknown>,
+  verification?: ResponseVerification
 ): Promise<FormResponse> {
   const res = await fetch(`${API_BASE}/forms/responses`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ form_id: formId, answers }),
+    body: JSON.stringify({ form_id: formId, answers, ...verification }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
