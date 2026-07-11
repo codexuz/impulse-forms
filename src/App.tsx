@@ -4,6 +4,8 @@ import FormPage from './pages/FormPage';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
+const DEFAULT_FORM_ID = 'dad2340c-18cb-438b-b19b-b6d3b88b5fcf';
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -18,11 +20,7 @@ export default function App() {
 
 function QueryParamPage() {
   const [searchParams] = useSearchParams();
-  const id = searchParams.get('id') || undefined;
-
-  if (!id) {
-    return <NoIdPage />;
-  }
+  const id = searchParams.get('id') || DEFAULT_FORM_ID;
 
   return <FormPage id={id} />;
 }
