@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useSearchParams, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Camera, CirclePlay, FileQuestion, Send } from 'lucide-react';
 import FormPage from './pages/FormPage';
 import { Button } from '@/components/ui/button';
@@ -10,19 +10,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<QueryParamPage />} />
-        <Route path="/:id" element={<PathParamPage />} />
+        <Route path="/" element={<Navigate to="/registration" replace />} />
+        <Route path="/registration" element={<FormPage id={DEFAULT_FORM_ID} />} />
+        <Route path="/form/:id" element={<PathParamPage />} />
         <Route path="*" element={<NoIdPage />} />
       </Routes>
     </BrowserRouter>
   );
-}
-
-function QueryParamPage() {
-  const [searchParams] = useSearchParams();
-  const id = searchParams.get('id') || DEFAULT_FORM_ID;
-
-  return <FormPage id={id} />;
 }
 
 function PathParamPage() {
