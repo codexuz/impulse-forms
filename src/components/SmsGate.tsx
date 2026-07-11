@@ -1,10 +1,20 @@
 import { useState, useCallback } from 'react';
+import { AlertCircle, ArrowRight, Loader2, Phone } from 'lucide-react';
 import { requestResponseOtp } from '../api/formsApi';
-import './SmsGate.css';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from '@/components/ui/input-otp';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { formatUzPhoneInput, isCompleteUzPhone, UZ_PHONE_PLACEHOLDER } from '@/lib/phoneMask';
 
 interface SmsGateProps {
   formId: string;
-  /** Called once the user has entered a code; parent submits with phone+code. */
   onVerified: (phone: string, code: string) => void;
 }
 
@@ -17,7 +27,7 @@ export default function SmsGate({ formId, onVerified }: SmsGateProps) {
 
   const sendCode = useCallback(async () => {
     const trimmed = phone.trim();
-    if (!trimmed) return;
+    if (!isCompleteUzPhone(trimmed)) return;
     setSending(true);
     setErrorMsg('');
     try {
@@ -43,100 +53,108 @@ export default function SmsGate({ formId, onVerified }: SmsGateProps) {
   }
 
   return (
-    <form className="sms-gate" onSubmit={handleVerify} noValidate>
-      <p className="sms-gate-intro">
-        Formani to'ldirishdan oldin telefon raqamingizni tasdiqlang.
-      </p>
+    <form className="space-y-5" onSubmit={handleVerify} noValidate>
+      <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Phone className="size-4" aria-hidden="true" />
+          </div>
+          <div>
+            <h2 className="font-semibold text-foreground">Telefon raqamni tasdiqlang</h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Formani to'ldirishdan oldin telefon raqamingizga yuborilgan SMS kodni kiriting.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {errorMsg && (
-        <div className="form-page-error animate-shake">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <span>{errorMsg}</span>
-        </div>
+        <Alert variant="destructive">
+          <AlertCircle className="size-4" aria-hidden="true" />
+          <AlertDescription>{errorMsg}</AlertDescription>
+        </Alert>
       )}
 
-      <div className="sms-gate-field">
-        <label className="form-field-label" htmlFor="sms-gate-phone">
-          Telefon raqam
-          <span className="form-field-required">*</span>
-        </label>
-        <input
+      <div className="space-y-2">
+        <Label htmlFor="sms-gate-phone" className="font-semibold">
+          Telefon raqam <span className="text-primary">*</span>
+        </Label>
+        <Input
           id="sms-gate-phone"
-          className="form-input"
+          className="h-11 bg-white text-base sm:text-sm"
           type="tel"
           inputMode="tel"
           autoComplete="tel"
-          placeholder="+998 90 123 45 67"
+          placeholder={UZ_PHONE_PLACEHOLDER}
           value={phone}
           disabled={codeSent}
-          onChange={(e) => setPhone(e.target.value)}
+          onChange={(e) => setPhone(formatUzPhoneInput(e.target.value))}
         />
       </div>
 
       {codeSent && (
-        <div className="sms-gate-field">
-          <label className="form-field-label" htmlFor="sms-gate-code">
-            SMS kod
-            <span className="form-field-required">*</span>
-          </label>
-          <input
-            id="sms-gate-code"
-            className="form-input"
-            type="text"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            placeholder="6 xonali kod"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-          />
-        </div>
+        <>
+          <Separator />
+          <div className="space-y-2">
+            <Label htmlFor="sms-gate-code" className="font-semibold">
+              SMS kod <span className="text-primary">*</span>
+            </Label>
+            <InputOTP
+              id="sms-gate-code"
+              maxLength={6}
+              value={code}
+              onChange={setCode}
+              containerClassName="justify-between sm:justify-start"
+            >
+              <InputOTPGroup>
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <InputOTPSlot key={index} index={index} className="size-11 bg-white text-base" />
+                ))}
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
+        </>
       )}
 
-      <div className="sms-gate-actions">
-        {!codeSent ? (
-          <button
-            type="button"
-            className="form-submit-btn"
-            disabled={sending || !phone.trim()}
-            onClick={sendCode}
+      {!codeSent ? (
+        <Button
+          type="button"
+          size="lg"
+          className="h-11 w-full gap-2 rounded-xl bg-primary text-base shadow-lg shadow-primary/20 hover:bg-primary/90"
+          disabled={sending || !isCompleteUzPhone(phone)}
+          onClick={sendCode}
+        >
+          {sending ? (
+            <>
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+              Yuborilmoqda...
+            </>
+          ) : (
+            'Kod yuborish'
+          )}
+        </Button>
+      ) : (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Button
+            type="submit"
+            size="lg"
+            className="h-11 flex-1 gap-2 rounded-xl bg-primary text-base shadow-lg shadow-primary/20 hover:bg-primary/90"
+            disabled={!code.trim()}
           >
-            {sending ? (
-              <>
-                <span className="form-submit-spinner" />
-                Yuborilmoqda…
-              </>
-            ) : (
-              'Kod yuborish'
-            )}
-          </button>
-        ) : (
-          <>
-            <button
-              type="submit"
-              className="form-submit-btn"
-              disabled={!code.trim()}
-            >
-              Tasdiqlash
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14" />
-                <path d="m12 5 7 7-7 7" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              className="sms-gate-link"
-              disabled={sending}
-              onClick={resetPhone}
-            >
-              Raqamni o'zgartirish
-            </button>
-          </>
-        )}
-      </div>
+            Tasdiqlash
+            <ArrowRight className="size-4" aria-hidden="true" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-11"
+            disabled={sending}
+            onClick={resetPhone}
+          >
+            Raqamni o'zgartirish
+          </Button>
+        </div>
+      )}
     </form>
   );
 }

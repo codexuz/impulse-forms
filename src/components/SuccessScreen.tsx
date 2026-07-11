@@ -1,4 +1,5 @@
-import './SuccessScreen.css';
+import { CheckCircle2, RotateCcw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface SuccessScreenProps {
   title?: string;
@@ -12,41 +13,20 @@ export default function SuccessScreen({
   onReset,
 }: SuccessScreenProps) {
   return (
-    <div className="success-screen animate-fade-in">
-      <div className="success-icon-wrapper">
-        <div className="success-icon-bg" />
-        <svg
-          className="success-icon-check"
-          viewBox="0 0 52 52"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle
-            className="success-circle"
-            cx="26"
-            cy="26"
-            r="24"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            fill="none"
-          />
-          <path
-            className="success-check"
-            d="M15 27l7 7 15-15"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-        </svg>
+    <div className="mx-auto flex max-w-md flex-col items-center py-8 text-center sm:py-12">
+      <div className="mb-6 flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-primary/15">
+        <CheckCircle2 className="size-9" aria-hidden="true" />
       </div>
-      <h1 className="success-title">{title}</h1>
-      <p className="success-message">{message}</p>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base">{message}</p>
       {onReset && (
-        <button className="success-btn" onClick={onReset}>
+        <Button
+          className="mt-8 h-11 w-full gap-2 rounded-xl bg-primary text-base shadow-lg shadow-primary/20 hover:bg-primary/90 sm:w-auto"
+          onClick={onReset}
+        >
+          <RotateCcw className="size-4" aria-hidden="true" />
           Submit another response
-        </button>
+        </Button>
       )}
     </div>
   );

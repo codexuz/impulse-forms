@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { AlertCircle, FileText } from 'lucide-react';
 import type { Form } from '../types/forms';
 import { getForm, submitFormResponse } from '../api/formsApi';
 import FormRenderer from '../components/FormRenderer';
@@ -6,7 +7,15 @@ import SmsGate from '../components/SmsGate';
 import SuccessScreen from '../components/SuccessScreen';
 import Spinner from '../components/Spinner';
 import NotFound from '../components/NotFound';
-import './FormPage.css';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 type PageState = 'loading' | 'ready' | 'submitted' | 'not-found';
 
@@ -35,8 +44,7 @@ export default function FormPage({ id }: FormPageProps) {
         if (!cancelled) {
           setForm(data);
           setState('ready');
-          // Update page title
-          document.title = `${data.title} — Impulse Forms`;
+          document.title = `${data.title} - Impulse Forms`;
         }
       } catch {
         if (!cancelled) setState('not-found');
@@ -44,7 +52,9 @@ export default function FormPage({ id }: FormPageProps) {
     }
 
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   const handleSubmit = useCallback(
@@ -74,92 +84,89 @@ export default function FormPage({ id }: FormPageProps) {
     setState('loading');
     setErrorMsg('');
     setVerification(null);
-    // Reload the form
     if (id) {
-      getForm(id).then((data) => {
-        setForm(data);
-        setState('ready');
-      }).catch(() => setState('not-found'));
+      getForm(id)
+        .then((data) => {
+          setForm(data);
+          setState('ready');
+        })
+        .catch(() => setState('not-found'));
     }
   }, [id]);
 
   return (
-    <div className="form-page">
-      {/* Decorative background elements */}
-      <div className="form-page-bg">
-        <div className="form-page-bg-orb form-page-bg-orb-1" />
-        <div className="form-page-bg-orb form-page-bg-orb-2" />
-        <div className="form-page-bg-orb form-page-bg-orb-3" />
-      </div>
+    <main className="relative flex min-h-dvh items-start justify-center overflow-hidden bg-[radial-gradient(circle_at_top_right,_rgba(37,99,235,0.22),_transparent_32%),radial-gradient(circle_at_bottom_left,_rgba(14,165,233,0.18),_transparent_34%),linear-gradient(145deg,_#f8fbff_0%,_#edf6ff_54%,_#ffffff_100%)] px-3 py-4 sm:px-6 sm:py-8 lg:items-center">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      <div className="pointer-events-none absolute right-[-14rem] top-[-14rem] h-[28rem] w-[28rem] rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-12rem] left-[-12rem] h-96 w-96 rounded-full bg-sky-300/20 blur-3xl" />
 
-      <div className="form-page-content">
-        {/* Brand */}
-        <div className="form-page-brand">
-          <div className="form-page-brand-logo">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-              <polyline points="10 9 9 9 8 9" />
-            </svg>
+      <div className="relative w-full max-w-2xl">
+        <div className="mb-4 flex items-center justify-center gap-3 sm:mb-6">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
+            <FileText className="size-5" aria-hidden="true" />
           </div>
-          <span className="form-page-brand-text">Impulse Forms</span>
+          <div>
+            <p className="text-sm font-semibold leading-none text-foreground">Impulse Forms</p>
+            <p className="mt-1 text-xs text-muted-foreground">Secure response collection</p>
+          </div>
         </div>
 
-        {state === 'loading' && (
-          <div className="form-page-card animate-fade-in">
-            <Spinner text="Loading form…" />
-          </div>
-        )}
+        <Card className="border-primary/10 bg-white/[0.92] shadow-2xl shadow-blue-950/10 backdrop-blur">
+          {state === 'ready' && form && (
+            <CardHeader className="border-b border-primary/10 px-5 py-5 sm:px-8 sm:py-7">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <CardTitle className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                    {form.title}
+                  </CardTitle>
+                  <CardDescription className="mt-2 leading-6">
+                    Complete the fields below and submit your response.
+                  </CardDescription>
+                </div>
+                {form.smsVerification && (
+                  <Badge variant="secondary" className="w-fit border border-primary/15 bg-primary/10 text-primary">
+                    SMS protected
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+          )}
 
-        {state === 'not-found' && (
-          <div className="form-page-card animate-fade-in">
-            <NotFound />
-          </div>
-        )}
+          <CardContent className="px-5 py-6 sm:px-8 sm:py-8">
+            {state === 'loading' && <Spinner text="Loading form..." />}
 
-        {state === 'submitted' && (
-          <div className="form-page-card animate-fade-in">
-            <SuccessScreen onReset={handleReset} />
-          </div>
-        )}
+            {state === 'not-found' && <NotFound />}
 
-        {state === 'ready' && form && (
-          <div className="form-page-card animate-fade-in">
-            <div className="form-page-header">
-              <h1 className="form-page-title">{form.title}</h1>
-              <div className="form-page-title-line" />
-            </div>
+            {state === 'submitted' && <SuccessScreen onReset={handleReset} />}
 
-            {errorMsg && (
-              <div className="form-page-error animate-shake">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="8" x2="12" y2="12" />
-                  <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-                <span>{errorMsg}</span>
+            {state === 'ready' && form && (
+              <div className="space-y-6">
+                {errorMsg && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="size-4" aria-hidden="true" />
+                    <AlertTitle>Submission failed</AlertTitle>
+                    <AlertDescription>{errorMsg}</AlertDescription>
+                  </Alert>
+                )}
+
+                {form.smsVerification && !verification ? (
+                  <SmsGate formId={id!} onVerified={handleVerified} />
+                ) : (
+                  <FormRenderer
+                    schema={form.schema}
+                    loading={submitting}
+                    onSubmit={handleSubmit}
+                  />
+                )}
               </div>
             )}
+          </CardContent>
+        </Card>
 
-            {form.smsVerification && !verification ? (
-              <SmsGate formId={id!} onVerified={handleVerified} />
-            ) : (
-              <FormRenderer
-                schema={form.schema}
-                loading={submitting}
-                onSubmit={handleSubmit}
-              />
-            )}
-          </div>
-        )}
-
-        {/* Footer */}
-        <p className="form-page-footer">
-          Powered by <strong>Impulse</strong>
+        <p className="mt-5 text-center text-xs text-muted-foreground">
+          Powered by <span className="font-semibold text-primary">Impulse</span>
         </p>
       </div>
-    </div>
+    </main>
   );
 }

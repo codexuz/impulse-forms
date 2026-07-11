@@ -1,6 +1,21 @@
 import { useCallback } from 'react';
+import { AlertCircle, Upload } from 'lucide-react';
 import type { FormField as FormFieldType } from '../types/forms';
-import './FormField.css';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { formatUzPhoneInput, UZ_PHONE_PLACEHOLDER } from '@/lib/phoneMask';
+import { cn } from '@/lib/utils';
 
 interface FormFieldProps {
   field: FormFieldType;
@@ -15,20 +30,32 @@ export default function FormField({ field, value, onChange, error }: FormFieldPr
     [field.id, onChange]
   );
 
-  const placeholder = field.placeholder || '';
   const id = `field-${field.id}`;
   const strVal = String(value ?? '');
 
   return (
-    <div className={`form-field ${error ? 'form-field-error' : ''}`}>
-      <label className="form-field-label" htmlFor={id}>
-        {field.label}
-        {field.required && <span className="form-field-required">*</span>}
-      </label>
+    <div
+      id={id}
+      className={cn(
+        'rounded-xl border bg-card/60 p-4 transition-colors sm:p-5',
+        error ? 'border-destructive/40 bg-destructive/5' : 'border-primary/10 hover:border-primary/25'
+      )}
+    >
+      <div className="space-y-3">
+        <Label htmlFor={`${id}-control`} className="text-sm font-semibold leading-5 text-foreground">
+          <span>{field.label}</span>
+          {field.required && <span className="ml-1 text-primary">*</span>}
+        </Label>
 
-      {renderInput(field, id, strVal, value, placeholder, handleChange)}
+        {renderInput(field, `${id}-control`, strVal, value, handleChange, !!error)}
 
-      {error && <p className="form-field-error-msg">{error}</p>}
+        {error && (
+          <p className="flex items-start gap-2 text-sm leading-5 text-destructive">
+            <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <span>{error}</span>
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -38,9 +65,11 @@ function renderInput(
   id: string,
   strVal: string,
   value: unknown,
-  placeholder: string,
-  onChange: (val: unknown) => void
+  onChange: (val: unknown) => void,
+  invalid: boolean
 ) {
+  const placeholder = field.placeholder || '';
+
   switch (field.type) {
     case 'text':
     case 'email':
@@ -50,70 +79,74 @@ function renderInput(
     case 'number': {
       const inputType = mapInputType(field.type);
       return (
-        <input
+        <Input
           id={id}
           type={inputType}
-          className="form-input"
-          placeholder={placeholder}
+          inputMode={field.type === 'phone' ? 'tel' : field.type === 'number' ? 'numeric' : undefined}
+          className="h-11 bg-white text-base sm:text-sm"
+          placeholder={field.type === 'phone' ? UZ_PHONE_PLACEHOLDER : placeholder}
           value={strVal}
-          onChange={(e) =>
-            onChange(inputType === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)
-          }
+          aria-invalid={invalid}
+          onChange={(e) => {
+            if (field.type === 'phone') {
+              onChange(formatUzPhoneInput(e.target.value));
+              return;
+            }
+
+            onChange(inputType === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value);
+          }}
         />
       );
     }
 
-    case 'textarea': {
+    case 'textarea':
       return (
-        <textarea
+        <Textarea
           id={id}
-          className="form-input form-textarea"
+          className="min-h-28 resize-y bg-white text-base sm:text-sm"
           placeholder={placeholder}
           value={strVal}
-          rows={4}
+          aria-invalid={invalid}
           onChange={(e) => onChange(e.target.value)}
         />
       );
-    }
 
     case 'select': {
       const options = field.options ?? [];
       return (
-        <select
-          id={id}
-          className="form-input form-select"
-          value={strVal}
-          onChange={(e) => onChange(e.target.value)}
-        >
-          <option value="">{placeholder || 'Select…'}</option>
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        <Select value={strVal || undefined} onValueChange={onChange}>
+          <SelectTrigger id={id} className="h-11 w-full bg-white text-base sm:text-sm" aria-invalid={invalid}>
+            <SelectValue placeholder={placeholder || 'Select an option'} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       );
     }
 
     case 'radio': {
       const options = field.options ?? [];
       return (
-        <div className="form-radio-group">
-          {options.map((opt) => (
-            <label key={opt.value} className="form-radio-label">
-              <input
-                type="radio"
-                className="form-radio"
-                name={field.id}
-                value={opt.value}
-                checked={strVal === opt.value}
-                onChange={() => onChange(opt.value)}
-              />
-              <span className="form-radio-custom" />
-              <span>{opt.label}</span>
-            </label>
-          ))}
-        </div>
+        <RadioGroup value={strVal} onValueChange={onChange} aria-invalid={invalid} className="gap-2">
+          {options.map((opt) => {
+            const optionId = `${id}-${opt.value}`;
+            return (
+              <Label
+                key={opt.value}
+                htmlFor={optionId}
+                className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-input bg-white px-3 py-2 text-sm font-normal leading-5 transition-colors hover:border-primary/40 hover:bg-primary/5 has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-primary/10"
+              >
+                <RadioGroupItem id={optionId} value={opt.value} />
+                <span className="min-w-0 break-words">{opt.label}</span>
+              </Label>
+            );
+          })}
+        </RadioGroup>
       );
     }
 
@@ -121,71 +154,73 @@ function renderInput(
       const options = field.options ?? [];
       const selected = Array.isArray(value) ? (value as string[]) : [];
       return (
-        <div className="form-checkbox-group">
+        <div className="grid gap-2">
           {options.map((opt) => {
+            const optionId = `${id}-${opt.value}`;
             const isChecked = selected.includes(opt.value);
             return (
-              <label key={opt.value} className="form-checkbox-label">
-                <input
-                  type="checkbox"
-                  className="form-checkbox"
+              <Label
+                key={opt.value}
+                htmlFor={optionId}
+                className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-input bg-white px-3 py-2 text-sm font-normal leading-5 transition-colors hover:border-primary/40 hover:bg-primary/5 has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-primary/10"
+              >
+                <Checkbox
+                  id={optionId}
                   checked={isChecked}
-                  onChange={() => {
-                    const next = isChecked
-                      ? selected.filter((v) => v !== opt.value)
-                      : [...selected, opt.value];
+                  aria-invalid={invalid}
+                  onCheckedChange={(checked) => {
+                    const next = checked
+                      ? [...selected, opt.value]
+                      : selected.filter((v) => v !== opt.value);
                     onChange(next);
                   }}
                 />
-                <span className="form-checkbox-custom" />
-                <span>{opt.label}</span>
-              </label>
+                <span className="min-w-0 break-words">{opt.label}</span>
+              </Label>
             );
           })}
         </div>
       );
     }
 
-    case 'file': {
+    case 'file':
       return (
-        <div className="form-file-wrapper">
-          <input
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Input
             id={id}
             type="file"
-            className="form-file-input"
+            className="sr-only"
+            aria-invalid={invalid}
             onChange={(e) => {
               const files = e.target.files;
               if (!files) return;
               onChange(files[0]);
             }}
           />
-          <label htmlFor={id} className="form-file-button">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
-            Choose file
-          </label>
+          <Button asChild variant="outline" className="h-11 w-full justify-center gap-2 sm:w-auto">
+            <label htmlFor={id}>
+              <Upload className="size-4" aria-hidden="true" />
+              Choose file
+            </label>
+          </Button>
           {!!value && value instanceof File && (
-            <span className="form-file-name">{value.name}</span>
+            <span className="min-w-0 truncate text-sm text-muted-foreground">{value.name}</span>
           )}
         </div>
       );
-    }
 
-    default: {
+    default:
       return (
-        <input
+        <Input
           id={id}
           type="text"
-          className="form-input"
+          className="h-11 bg-white text-base sm:text-sm"
           placeholder={placeholder}
           value={strVal}
+          aria-invalid={invalid}
           onChange={(e) => onChange(e.target.value)}
         />
       );
-    }
   }
 }
 

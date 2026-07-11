@@ -1,4 +1,4 @@
-import './NotFound.css';
+import { FileQuestion } from 'lucide-react';
 
 interface NotFoundProps {
   title?: string;
@@ -10,16 +10,12 @@ export default function NotFound({
   message = 'This form may have been removed or the link is invalid.',
 }: NotFoundProps) {
   return (
-    <div className="not-found animate-fade-in">
-      <div className="not-found-icon">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 8v4" />
-          <circle cx="12" cy="16" r="0.5" fill="currentColor" />
-        </svg>
+    <div className="mx-auto flex max-w-md flex-col items-center py-8 text-center sm:py-12">
+      <div className="mb-6 flex size-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground ring-1 ring-border">
+        <FileQuestion className="size-8" aria-hidden="true" />
       </div>
-      <h1 className="not-found-title">{title}</h1>
-      <p className="not-found-message">{message}</p>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground sm:text-base">{message}</p>
     </div>
   );
 }

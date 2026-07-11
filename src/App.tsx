@@ -1,25 +1,21 @@
 import { BrowserRouter, Routes, Route, useSearchParams, useParams } from 'react-router-dom';
+import { Camera, CirclePlay, FileQuestion, Send } from 'lucide-react';
 import FormPage from './pages/FormPage';
-import './components/NoIdPage.css';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Root with ?id=xxx query param */}
         <Route path="/" element={<QueryParamPage />} />
-
-        {/* Path param: /:id */}
         <Route path="/:id" element={<PathParamPage />} />
-
-        {/* Catch-all */}
         <Route path="*" element={<NoIdPage />} />
       </Routes>
     </BrowserRouter>
   );
 }
 
-/** Reads form id from ?id=xxx query parameter */
 function QueryParamPage() {
   const [searchParams] = useSearchParams();
   const id = searchParams.get('id') || undefined;
@@ -31,7 +27,6 @@ function QueryParamPage() {
   return <FormPage id={id} />;
 }
 
-/** Reads form id from /:id path parameter */
 function PathParamPage() {
   const { id } = useParams<{ id: string }>();
 
@@ -44,71 +39,65 @@ function PathParamPage() {
 
 function NoIdPage() {
   return (
-    <div className="no-id-page">
-      {/* Background orbs */}
-      <div className="no-id-bg">
-        <div className="no-id-bg-orb no-id-bg-orb-1" />
-        <div className="no-id-bg-orb no-id-bg-orb-2" />
-      </div>
+    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.20),_transparent_34%),linear-gradient(145deg,_#f8fbff_0%,_#eef6ff_52%,_#ffffff_100%)] px-4 py-8 sm:px-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      <div className="pointer-events-none absolute right-[-12rem] top-[-12rem] h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-10rem] left-[-10rem] h-80 w-80 rounded-full bg-sky-300/20 blur-3xl" />
 
-      <div className="no-id-content">
-        <img
-          src="/no_data.svg"
-          alt="No data"
-          className="no-id-illustration"
-        />
+      <Card className="relative w-full max-w-md border-primary/10 bg-white/90 shadow-2xl shadow-blue-950/10 backdrop-blur">
+        <CardContent className="flex flex-col items-center px-6 py-10 text-center sm:px-10">
+          <div className="mb-6 flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15">
+            <FileQuestion className="size-8" aria-hidden="true" />
+          </div>
 
-        <h2 className="no-id-title">No forms found</h2>
+          <img
+            src="/no_data.svg"
+            alt=""
+            className="mb-6 h-36 w-36 object-contain opacity-90 sm:h-40 sm:w-40"
+          />
 
-        <p className="no-id-message">
-          There is no form to display. Please check the link and try again.
-        </p>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            No forms found
+          </h1>
+          <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground sm:text-base">
+            There is no form to display. Please check the link and try again.
+          </p>
 
-        {/* Social links */}
-        <div className="no-id-socials">
-          <a
-            href="https://youtube.com/@impulse_lc"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="YouTube"
-            className="no-id-social-link no-id-social-link--youtube"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.546 12 3.546 12 3.546s-7.505 0-9.377.504A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.504 9.376.504 9.376.504s7.505 0 9.377-.504a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-            </svg>
-          </a>
+          <div className="mt-7 flex items-center gap-2">
+            <Button asChild variant="outline" size="icon-lg" aria-label="YouTube">
+              <a
+                href="https://youtube.com/@impulse_lc"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <CirclePlay className="size-4 text-red-600" />
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="icon-lg" aria-label="Instagram">
+              <a
+                href="https://instagram.com/impulsestudy_lc"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Camera className="size-4 text-pink-600" />
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="icon-lg" aria-label="Telegram">
+              <a
+                href="https://t.me/impulse_lc"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Send className="size-4 text-sky-600" />
+              </a>
+            </Button>
+          </div>
 
-          <a
-            href="https://instagram.com/impulsestudy_lc"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Instagram"
-            className="no-id-social-link no-id-social-link--instagram"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-            </svg>
-          </a>
-
-          <a
-            href="https://t.me/impulse_lc"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Telegram"
-            className="no-id-social-link no-id-social-link--telegram"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
-            </svg>
-          </a>
-        </div>
-
-        <p className="no-id-footer">
-          Powered by <strong>Impulse</strong>
-        </p>
-      </div>
-    </div>
+          <p className="mt-8 text-xs text-muted-foreground">
+            Powered by <span className="font-semibold text-primary">Impulse</span>
+          </p>
+        </CardContent>
+      </Card>
+    </main>
   );
 }
