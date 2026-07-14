@@ -155,6 +155,7 @@ export default function FormPage({ id }: FormPageProps) {
                   <FormRenderer
                     schema={form.schema}
                     loading={submitting}
+                    verifiedPhone={verification?.phone}
                     onSubmit={handleSubmit}
                   />
                 )}

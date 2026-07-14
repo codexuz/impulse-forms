@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { formatUzPhoneInput, UZ_PHONE_PLACEHOLDER } from '@/lib/phoneMask';
+import { formatUzPhoneInput, isPhoneField, UZ_PHONE_PLACEHOLDER } from '@/lib/phoneMask';
 import { cn } from '@/lib/utils';
 
 interface FormFieldProps {
@@ -69,6 +69,7 @@ function renderInput(
   invalid: boolean
 ) {
   const placeholder = field.placeholder || '';
+  const asPhone = isPhoneField(field);
 
   switch (field.type) {
     case 'text':
@@ -77,18 +78,18 @@ function renderInput(
     case 'date':
     case 'time':
     case 'number': {
-      const inputType = mapInputType(field.type);
+      const inputType = asPhone ? 'tel' : mapInputType(field.type);
       return (
         <Input
           id={id}
           type={inputType}
-          inputMode={field.type === 'phone' ? 'tel' : field.type === 'number' ? 'numeric' : undefined}
+          inputMode={asPhone ? 'tel' : field.type === 'number' ? 'numeric' : undefined}
           className="h-11 bg-white text-base sm:text-sm"
-          placeholder={field.type === 'phone' ? UZ_PHONE_PLACEHOLDER : placeholder}
+          placeholder={asPhone ? UZ_PHONE_PLACEHOLDER : placeholder}
           value={strVal}
           aria-invalid={invalid}
           onChange={(e) => {
-            if (field.type === 'phone') {
+            if (asPhone) {
               onChange(formatUzPhoneInput(e.target.value));
               return;
             }

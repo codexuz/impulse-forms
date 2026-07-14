@@ -5,21 +5,28 @@ import FormField from './FormField';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { isCompleteUzPhone } from '@/lib/phoneMask';
+import { formatUzPhoneInput, isCompleteUzPhone, isPhoneField } from '@/lib/phoneMask';
 
 interface FormRendererProps {
   schema: FormSchema;
   loading?: boolean;
+  /** Verified phone number used to autofill phone fields (SMS-gated forms). */
+  verifiedPhone?: string;
   onSubmit: (data: Record<string, unknown>) => void;
 }
 
-export default function FormRenderer({ schema, loading, onSubmit }: FormRendererProps) {
+export default function FormRenderer({ schema, loading, verifiedPhone, onSubmit }: FormRendererProps) {
   const fields = schema.fields;
 
   const [values, setValues] = useState<Record<string, unknown>>(() => {
     const defaults: Record<string, unknown> = {};
+    const prefillPhone = verifiedPhone ? formatUzPhoneInput(verifiedPhone) : '';
     for (const field of fields) {
-      defaults[field.id] = field.type === 'checkbox' ? [] : '';
+      if (isPhoneField(field)) {
+        defaults[field.id] = prefillPhone;
+      } else {
+        defaults[field.id] = field.type === 'checkbox' ? [] : '';
+      }
     }
     return defaults;
   });
@@ -50,7 +57,7 @@ export default function FormRenderer({ schema, loading, onSubmit }: FormRenderer
         continue;
       }
 
-      if (field.type === 'phone' && val && typeof val === 'string' && !isCompleteUzPhone(val)) {
+      if (isPhoneField(field) && val && typeof val === 'string' && !isCompleteUzPhone(val)) {
         newErrors[field.id] = 'Please enter a complete phone number';
       }
 

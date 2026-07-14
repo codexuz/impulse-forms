@@ -1,7 +1,20 @@
+import type { FieldType } from '../types/forms';
+
 const UZ_COUNTRY_CODE = '998';
 const UZ_LOCAL_DIGITS = 9;
 
 export const UZ_PHONE_PLACEHOLDER = '+998 __ ___ __ __';
+
+/**
+ * A field is treated as a phone field when its type is `phone`, or when its
+ * label mentions a phone number (e.g. "Phone", "Phone number", "Telefon").
+ * This lets phone masking/autofill apply even to plain text fields authored as
+ * phone inputs.
+ */
+export function isPhoneField(field: { type: FieldType; label?: string }): boolean {
+  if (field.type === 'phone') return true;
+  return /phone|telefon/i.test(field.label ?? '');
+}
 
 export function getUzPhoneLocalDigits(value: string): string {
   let digits = value.replace(/\D/g, '');
