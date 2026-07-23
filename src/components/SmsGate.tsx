@@ -24,6 +24,7 @@ export default function SmsGate({ formId, onVerified }: SmsGateProps) {
   const [codeSent, setCodeSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const isCodeValid = /^\d{4}$/.test(code);
 
   const sendCode = useCallback(async () => {
     const trimmed = phone.trim();
@@ -48,7 +49,7 @@ export default function SmsGate({ formId, onVerified }: SmsGateProps) {
 
   function handleVerify(e: React.FormEvent) {
     e.preventDefault();
-    if (!code.trim()) return;
+    if (!isCodeValid) return;
     onVerified(phone.trim(), code.trim());
   }
 
@@ -101,13 +102,14 @@ export default function SmsGate({ formId, onVerified }: SmsGateProps) {
             </Label>
             <InputOTP
               id="sms-gate-code"
-              maxLength={6}
+              maxLength={4}
+              pattern="[0-9]*"
               value={code}
               onChange={setCode}
               containerClassName="justify-between sm:justify-start"
             >
               <InputOTPGroup>
-                {Array.from({ length: 6 }).map((_, index) => (
+                {Array.from({ length: 4 }).map((_, index) => (
                   <InputOTPSlot key={index} index={index} className="size-11 bg-white text-base" />
                 ))}
               </InputOTPGroup>
@@ -139,7 +141,7 @@ export default function SmsGate({ formId, onVerified }: SmsGateProps) {
             type="submit"
             size="lg"
             className="h-11 flex-1 gap-2 rounded-xl bg-primary text-base shadow-lg shadow-primary/20 hover:bg-primary/90"
-            disabled={!code.trim()}
+            disabled={!isCodeValid}
           >
             Tasdiqlash
             <ArrowRight className="size-4" aria-hidden="true" />
